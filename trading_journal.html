@@ -1,0 +1,645 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ژورنال ترید | Kian</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;500;600;700;900&display=swap');
+
+  :root {
+    --bg: #0c0c0e;
+    --bg2: #141416;
+    --bg3: #1c1c1f;
+    --border: rgba(255,255,255,0.07);
+    --green: #00c896;
+    --red: #ff4757;
+    --yellow: #ffc048;
+    --blue: #4f8ef7;
+    --text: #e8e8ec;
+    --text2: rgba(255,255,255,0.45);
+    --text3: rgba(255,255,255,0.2);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+  body {
+    font-family: 'Vazirmatn', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    padding-bottom: 80px;
+  }
+
+  /* NAV */
+  .nav {
+    position: fixed;
+    bottom: 0; left: 0; right: 0;
+    background: var(--bg2);
+    border-top: 1px solid var(--border);
+    display: flex;
+    z-index: 100;
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+  .nav-btn {
+    flex: 1;
+    padding: 12px 4px 10px;
+    text-align: center;
+    cursor: pointer;
+    color: var(--text3);
+    font-size: 11px;
+    transition: color 0.2s;
+    border: none;
+    background: none;
+    font-family: 'Vazirmatn', sans-serif;
+  }
+  .nav-btn.active { color: var(--green); }
+  .nav-icon { font-size: 20px; display: block; margin-bottom: 2px; }
+
+  /* PAGES */
+  .page { display: none; padding: 16px; }
+  .page.active { display: block; }
+
+  /* HEADER */
+  .header {
+    padding: 20px 16px 8px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .header h1 { font-size: 22px; font-weight: 900; }
+  .header span { font-size: 12px; color: var(--text2); }
+
+  /* STATS ROW */
+  .stats-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin-bottom: 16px;
+  }
+  .stat-card {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 14px;
+  }
+  .stat-label { font-size: 11px; color: var(--text2); margin-bottom: 4px; }
+  .stat-value { font-size: 22px; font-weight: 700; }
+  .stat-value.green { color: var(--green); }
+  .stat-value.red { color: var(--red); }
+  .stat-value.yellow { color: var(--yellow); }
+
+  /* TRADE LIST */
+  .trade-card {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 14px 16px;
+    margin-bottom: 10px;
+    cursor: pointer;
+    transition: border-color 0.2s;
+  }
+  .trade-card:active { border-color: rgba(255,255,255,0.15); }
+  .trade-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+  .trade-symbol { font-size: 15px; font-weight: 700; }
+  .trade-pnl { font-size: 15px; font-weight: 700; }
+  .trade-pnl.win { color: var(--green); }
+  .trade-pnl.loss { color: var(--red); }
+  .trade-bottom { display: flex; gap: 8px; flex-wrap: wrap; }
+  .tag {
+    font-size: 11px;
+    padding: 3px 8px;
+    border-radius: 20px;
+    background: rgba(255,255,255,0.06);
+    color: var(--text2);
+  }
+  .tag.long { background: rgba(0,200,150,0.12); color: var(--green); }
+  .tag.short { background: rgba(255,71,87,0.12); color: var(--red); }
+  .tag.win { background: rgba(0,200,150,0.12); color: var(--green); }
+  .tag.loss { background: rgba(255,71,87,0.12); color: var(--red); }
+
+  /* ADD TRADE FORM */
+  .form-section { margin-bottom: 20px; }
+  .form-title {
+    font-size: 12px;
+    color: var(--text2);
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    margin-bottom: 10px;
+  }
+  .form-group { margin-bottom: 10px; }
+  .form-label { font-size: 12px; color: var(--text2); margin-bottom: 6px; display: block; }
+  .form-input {
+    width: 100%;
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 12px 14px;
+    color: var(--text);
+    font-size: 14px;
+    font-family: 'Vazirmatn', sans-serif;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+  .form-input:focus { border-color: var(--green); }
+  .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+
+  .select-group { display: flex; gap: 8px; }
+  .select-btn {
+    flex: 1;
+    padding: 11px;
+    border-radius: 10px;
+    border: 1px solid var(--border);
+    background: var(--bg2);
+    color: var(--text2);
+    font-family: 'Vazirmatn', sans-serif;
+    font-size: 13px;
+    cursor: pointer;
+    transition: all 0.2s;
+    text-align: center;
+  }
+  .select-btn.selected-long { background: rgba(0,200,150,0.15); border-color: var(--green); color: var(--green); }
+  .select-btn.selected-short { background: rgba(255,71,87,0.15); border-color: var(--red); color: var(--red); }
+  .select-btn.selected-win { background: rgba(0,200,150,0.15); border-color: var(--green); color: var(--green); }
+  .select-btn.selected-loss { background: rgba(255,71,87,0.15); border-color: var(--red); color: var(--red); }
+
+  .submit-btn {
+    width: 100%;
+    padding: 15px;
+    background: var(--green);
+    color: #000;
+    font-family: 'Vazirmatn', sans-serif;
+    font-size: 15px;
+    font-weight: 700;
+    border: none;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: opacity 0.2s;
+    margin-top: 8px;
+  }
+  .submit-btn:active { opacity: 0.8; }
+
+  /* CHECKLIST */
+  .checklist-item {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 14px 16px;
+    margin-bottom: 8px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .checklist-item.checked {
+    border-color: rgba(0,200,150,0.3);
+    background: rgba(0,200,150,0.05);
+  }
+  .check-box {
+    width: 24px; height: 24px;
+    border-radius: 8px;
+    border: 2px solid var(--border);
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+    font-size: 13px;
+    transition: all 0.2s;
+  }
+  .checklist-item.checked .check-box {
+    background: var(--green);
+    border-color: var(--green);
+    color: #000;
+  }
+  .check-text { font-size: 13px; line-height: 1.5; }
+  .check-sub { font-size: 11px; color: var(--text2); margin-top: 2px; }
+  .checklist-item.checked .check-text { color: var(--text2); text-decoration: line-through; }
+
+  .progress-wrap {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 16px;
+    margin-bottom: 16px;
+  }
+  .progress-top { display: flex; justify-content: space-between; font-size: 13px; color: var(--text2); margin-bottom: 10px; }
+  .progress-top span:last-child { font-weight: 700; color: var(--text); }
+  .progress-bar { height: 5px; background: rgba(255,255,255,0.06); border-radius: 10px; overflow: hidden; }
+  .progress-fill { height: 100%; background: var(--green); border-radius: 10px; transition: width 0.4s; }
+  .status-msg { text-align: center; font-size: 13px; font-weight: 600; margin-top: 10px; color: var(--text2); }
+  .status-msg.ready { color: var(--green); }
+  .status-msg.partial { color: var(--yellow); }
+
+  .reset-btn {
+    width: 100%;
+    padding: 12px;
+    background: rgba(255,255,255,0.04);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    color: var(--text2);
+    font-family: 'Vazirmatn', sans-serif;
+    font-size: 13px;
+    cursor: pointer;
+    margin-top: 12px;
+  }
+
+  /* EMPTY STATE */
+  .empty {
+    text-align: center;
+    padding: 60px 20px;
+    color: var(--text2);
+  }
+  .empty-icon { font-size: 48px; margin-bottom: 12px; }
+  .empty h3 { font-size: 16px; margin-bottom: 6px; color: var(--text); }
+  .empty p { font-size: 13px; }
+
+  /* MODAL */
+  .modal-overlay {
+    position: fixed; inset: 0;
+    background: rgba(0,0,0,0.7);
+    z-index: 200;
+    display: none;
+    align-items: flex-end;
+  }
+  .modal-overlay.open { display: flex; }
+  .modal {
+    background: var(--bg2);
+    border-radius: 20px 20px 0 0;
+    padding: 20px 16px 40px;
+    width: 100%;
+    max-height: 80vh;
+    overflow-y: auto;
+  }
+  .modal-handle { width: 36px; height: 4px; background: var(--border); border-radius: 2px; margin: 0 auto 16px; }
+  .modal-title { font-size: 16px; font-weight: 700; margin-bottom: 16px; }
+  .modal-row { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid var(--border); font-size: 13px; }
+  .modal-row:last-child { border-bottom: none; }
+  .modal-row span:first-child { color: var(--text2); }
+  .modal-row span:last-child { font-weight: 600; }
+  .modal-notes { background: var(--bg3); border-radius: 10px; padding: 12px; font-size: 13px; color: var(--text2); margin-top: 12px; line-height: 1.6; }
+  .delete-btn {
+    width: 100%;
+    padding: 12px;
+    background: rgba(255,71,87,0.1);
+    border: 1px solid rgba(255,71,87,0.2);
+    border-radius: 10px;
+    color: var(--red);
+    font-family: 'Vazirmatn', sans-serif;
+    font-size: 13px;
+    cursor: pointer;
+    margin-top: 16px;
+  }
+  .close-btn {
+    width: 100%;
+    padding: 12px;
+    background: rgba(255,255,255,0.06);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    color: var(--text2);
+    font-family: 'Vazirmatn', sans-serif;
+    font-size: 13px;
+    cursor: pointer;
+    margin-top: 8px;
+  }
+
+  textarea.form-input { resize: none; min-height: 80px; }
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div class="header">
+  <h1 id="page-title">📊 ژورنال</h1>
+  <span id="trade-count">۰ معامله</span>
+</div>
+
+<!-- PAGE: JOURNAL -->
+<div class="page active" id="page-journal">
+  <div class="stats-row">
+    <div class="stat-card">
+      <div class="stat-label">وین ریت</div>
+      <div class="stat-value yellow" id="stat-winrate">-%</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">کل سود/ضرر</div>
+      <div class="stat-value" id="stat-pnl">$0</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">معاملات برنده</div>
+      <div class="stat-value green" id="stat-wins">0</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">معاملات بازنده</div>
+      <div class="stat-value red" id="stat-losses">0</div>
+    </div>
+  </div>
+
+  <div id="trade-list"></div>
+</div>
+
+<!-- PAGE: ADD TRADE -->
+<div class="page" id="page-add">
+  <div class="form-section">
+    <div class="form-title">اطلاعات معامله</div>
+
+    <div class="form-group">
+      <label class="form-label">جفت ارز</label>
+      <input class="form-input" id="f-symbol" type="text" placeholder="مثلاً SOLUSDT">
+    </div>
+
+    <div class="form-group">
+      <label class="form-label">تاریخ</label>
+      <input class="form-input" id="f-date" type="date">
+    </div>
+
+    <div class="form-group">
+      <label class="form-label">جهت معامله</label>
+      <div class="select-group">
+        <button class="select-btn" id="btn-long" onclick="selectDir('long')">📈 Long</button>
+        <button class="select-btn" id="btn-short" onclick="selectDir('short')">📉 Short</button>
+      </div>
+    </div>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">قیمت ورود</label>
+        <input class="form-input" id="f-entry" type="number" placeholder="0.00">
+      </div>
+      <div class="form-group">
+        <label class="form-label">حد ضرر</label>
+        <input class="form-input" id="f-sl" type="number" placeholder="0.00">
+      </div>
+    </div>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">تارگت</label>
+        <input class="form-input" id="f-tp" type="number" placeholder="0.00">
+      </div>
+      <div class="form-group">
+        <label class="form-label">سود/ضرر ($)</label>
+        <input class="form-input" id="f-pnl" type="number" placeholder="0.00">
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label class="form-label">نتیجه</label>
+      <div class="select-group">
+        <button class="select-btn" id="btn-win" onclick="selectResult('win')">✅ Win</button>
+        <button class="select-btn" id="btn-loss" onclick="selectResult('loss')">❌ Loss</button>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label class="form-label">یادداشت</label>
+      <textarea class="form-input" id="f-notes" placeholder="دلیل ورود، اشتباهات، نکات..."></textarea>
+    </div>
+
+    <button class="submit-btn" onclick="saveTrade()">ذخیره معامله</button>
+  </div>
+</div>
+
+<!-- PAGE: CHECKLIST -->
+<div class="page" id="page-checklist">
+  <div class="progress-wrap">
+    <div class="progress-top">
+      <span>پیشرفت</span>
+      <span id="cl-count">0 / 8</span>
+    </div>
+    <div class="progress-bar">
+      <div class="progress-fill" id="cl-fill" style="width:0%"></div>
+    </div>
+    <div class="status-msg" id="cl-status">⏳ موارد رو تیک بزن...</div>
+  </div>
+
+  <div id="checklist-items"></div>
+  <button class="reset-btn" onclick="resetChecklist()">🔄 ریست چک لیست</button>
+</div>
+
+<!-- MODAL -->
+<div class="modal-overlay" id="modal" onclick="closeModal(event)">
+  <div class="modal" id="modal-content">
+    <div class="modal-handle"></div>
+    <div class="modal-title" id="modal-title"></div>
+    <div id="modal-body"></div>
+    <button class="delete-btn" id="modal-delete">🗑 حذف معامله</button>
+    <button class="close-btn" onclick="closeModalDirect()">بستن</button>
+  </div>
+</div>
+
+<!-- NAV -->
+<nav class="nav">
+  <button class="nav-btn active" onclick="showPage('journal',this)">
+    <span class="nav-icon">📋</span>ژورنال
+  </button>
+  <button class="nav-btn" onclick="showPage('add',this)">
+    <span class="nav-icon">➕</span>ثبت
+  </button>
+  <button class="nav-btn" onclick="showPage('checklist',this)">
+    <span class="nav-icon">✅</span>چک لیست
+  </button>
+</nav>
+
+<script>
+// ===================== DATA =====================
+let trades = JSON.parse(localStorage.getItem('kian_trades') || '[]');
+let direction = '';
+let result = '';
+let currentTradeId = null;
+
+const CHECKLIST = [
+  { text: 'قیمت از EMA 9 یک‌ساعته فاصله گرفته', sub: 'هرچی فاصله بیشتر، پتانسیل برگشت بالاتر' },
+  { text: 'قیمت به FVG رسیده', sub: 'تایم‌فریم 5 یا 15 دقیقه' },
+  { text: 'قیمت در محدوده فیبوناچی هست', sub: 'تلاقی فیبو دو نقطه‌ای و سه نقطه‌ای' },
+  { text: 'Trendilo واگرایی داده', sub: 'واگرایی مخفی یا معمولی' },
+  { text: 'MACD هم واگرایی داده', sub: 'تأییدیه دوم الزامیه' },
+  { text: 'نقطه ورود مشخص شده', sub: 'دقیقاً کجا وارد میشی؟' },
+  { text: 'تارگت روی EMA 9 یک‌ساعته مشخصه', sub: 'R/R حداقل 1:2 باشه' },
+  { text: 'حد ضرر زیر/بالای کف یا سقف قبلی', sub: 'قبل از ورود حتماً استاپ بذار' },
+];
+
+let clState = JSON.parse(localStorage.getItem('kian_checklist') || '[]').length ? 
+  JSON.parse(localStorage.getItem('kian_checklist')) : 
+  new Array(8).fill(false);
+
+// ===================== PAGES =====================
+function showPage(name, btn) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('page-' + name).classList.add('active');
+  btn.classList.add('active');
+  const titles = { journal: '📊 ژورنال', add: '➕ ثبت معامله', checklist: '✅ چک لیست' };
+  document.getElementById('page-title').textContent = titles[name];
+  if (name === 'journal') renderJournal();
+  if (name === 'checklist') renderChecklist();
+}
+
+// ===================== JOURNAL =====================
+function renderJournal() {
+  const list = document.getElementById('trade-list');
+  document.getElementById('trade-count').textContent = trades.length + ' معامله';
+
+  // Stats
+  const wins = trades.filter(t => t.result === 'win').length;
+  const losses = trades.filter(t => t.result === 'loss').length;
+  const totalPnl = trades.reduce((s, t) => s + (parseFloat(t.pnl) || 0), 0);
+  const wr = trades.length ? Math.round(wins / trades.length * 100) : null;
+
+  document.getElementById('stat-wins').textContent = wins;
+  document.getElementById('stat-losses').textContent = losses;
+  document.getElementById('stat-winrate').textContent = wr !== null ? wr + '%' : '-%';
+  document.getElementById('stat-winrate').className = 'stat-value ' + (wr >= 50 ? 'green' : wr !== null ? 'red' : 'yellow');
+
+  const pnlEl = document.getElementById('stat-pnl');
+  pnlEl.textContent = (totalPnl >= 0 ? '+' : '') + '$' + totalPnl.toFixed(1);
+  pnlEl.className = 'stat-value ' + (totalPnl > 0 ? 'green' : totalPnl < 0 ? 'red' : '');
+
+  if (!trades.length) {
+    list.innerHTML = `<div class="empty"><div class="empty-icon">📭</div><h3>هنوز معامله‌ای ثبت نشده</h3><p>از تب "ثبت" اولین معامله‌ات رو اضافه کن</p></div>`;
+    return;
+  }
+
+  list.innerHTML = [...trades].reverse().map(t => `
+    <div class="trade-card" onclick="openTrade('${t.id}')">
+      <div class="trade-top">
+        <span class="trade-symbol">${t.symbol || '-'}</span>
+        <span class="trade-pnl ${t.result}">${t.pnl ? (t.pnl > 0 ? '+' : '') + '$' + parseFloat(t.pnl).toFixed(1) : '-'}</span>
+      </div>
+      <div class="trade-bottom">
+        <span class="tag ${t.direction}">${t.direction === 'long' ? '📈 Long' : '📉 Short'}</span>
+        <span class="tag ${t.result}">${t.result === 'win' ? '✅ Win' : '❌ Loss'}</span>
+        <span class="tag">${t.date || '-'}</span>
+        ${t.entry ? `<span class="tag">ورود: ${t.entry}</span>` : ''}
+      </div>
+    </div>
+  `).join('');
+}
+
+function openTrade(id) {
+  const t = trades.find(x => x.id === id);
+  if (!t) return;
+  currentTradeId = id;
+  document.getElementById('modal-title').textContent = t.symbol || 'معامله';
+  document.getElementById('modal-body').innerHTML = `
+    <div class="modal-row"><span>تاریخ</span><span>${t.date || '-'}</span></div>
+    <div class="modal-row"><span>جهت</span><span>${t.direction === 'long' ? '📈 Long' : '📉 Short'}</span></div>
+    <div class="modal-row"><span>نتیجه</span><span>${t.result === 'win' ? '✅ Win' : '❌ Loss'}</span></div>
+    <div class="modal-row"><span>قیمت ورود</span><span>${t.entry || '-'}</span></div>
+    <div class="modal-row"><span>حد ضرر</span><span>${t.sl || '-'}</span></div>
+    <div class="modal-row"><span>تارگت</span><span>${t.tp || '-'}</span></div>
+    <div class="modal-row"><span>سود/ضرر</span><span style="color:${t.result==='win'?'var(--green)':'var(--red)'}">${t.pnl ? (t.pnl>0?'+':'')+'$'+parseFloat(t.pnl).toFixed(1) : '-'}</span></div>
+    ${t.notes ? `<div class="modal-notes">${t.notes}</div>` : ''}
+  `;
+  document.getElementById('modal-delete').onclick = () => deleteTrade(id);
+  document.getElementById('modal').classList.add('open');
+}
+
+function deleteTrade(id) {
+  if (!confirm('حذف بشه؟')) return;
+  trades = trades.filter(t => t.id !== id);
+  localStorage.setItem('kian_trades', JSON.stringify(trades));
+  closeModalDirect();
+  renderJournal();
+}
+
+function closeModal(e) {
+  if (e.target === document.getElementById('modal')) closeModalDirect();
+}
+function closeModalDirect() {
+  document.getElementById('modal').classList.remove('open');
+}
+
+// ===================== ADD TRADE =====================
+function selectDir(d) {
+  direction = d;
+  document.getElementById('btn-long').className = 'select-btn' + (d==='long'?' selected-long':'');
+  document.getElementById('btn-short').className = 'select-btn' + (d==='short'?' selected-short':'');
+}
+
+function selectResult(r) {
+  result = r;
+  document.getElementById('btn-win').className = 'select-btn' + (r==='win'?' selected-win':'');
+  document.getElementById('btn-loss').className = 'select-btn' + (r==='loss'?' selected-loss':'');
+}
+
+function saveTrade() {
+  const symbol = document.getElementById('f-symbol').value.trim().toUpperCase();
+  if (!symbol) { alert('جفت ارز رو وارد کن'); return; }
+  if (!direction) { alert('جهت معامله رو انتخاب کن'); return; }
+  if (!result) { alert('نتیجه رو انتخاب کن'); return; }
+
+  const trade = {
+    id: Date.now().toString(),
+    symbol,
+    date: document.getElementById('f-date').value,
+    direction,
+    result,
+    entry: document.getElementById('f-entry').value,
+    sl: document.getElementById('f-sl').value,
+    tp: document.getElementById('f-tp').value,
+    pnl: document.getElementById('f-pnl').value,
+    notes: document.getElementById('f-notes').value.trim(),
+  };
+
+  trades.push(trade);
+  localStorage.setItem('kian_trades', JSON.stringify(trades));
+
+  // Reset
+  document.getElementById('f-symbol').value = '';
+  document.getElementById('f-date').value = '';
+  document.getElementById('f-entry').value = '';
+  document.getElementById('f-sl').value = '';
+  document.getElementById('f-tp').value = '';
+  document.getElementById('f-pnl').value = '';
+  document.getElementById('f-notes').value = '';
+  direction = ''; result = '';
+  selectDir(''); selectResult('');
+
+  alert('✅ معامله ذخیره شد!');
+  document.querySelector('.nav-btn').click();
+}
+
+// ===================== CHECKLIST =====================
+function renderChecklist() {
+  const container = document.getElementById('checklist-items');
+  container.innerHTML = CHECKLIST.map((item, i) => `
+    <div class="checklist-item ${clState[i] ? 'checked' : ''}" onclick="toggleCheck(${i})">
+      <div class="check-box">${clState[i] ? '✓' : ''}</div>
+      <div>
+        <div class="check-text">${item.text}</div>
+        <div class="check-sub">${item.sub}</div>
+      </div>
+    </div>
+  `).join('');
+  updateProgress();
+}
+
+function toggleCheck(i) {
+  clState[i] = !clState[i];
+  localStorage.setItem('kian_checklist', JSON.stringify(clState));
+  renderChecklist();
+}
+
+function updateProgress() {
+  const checked = clState.filter(Boolean).length;
+  const pct = (checked / 8) * 100;
+  document.getElementById('cl-fill').style.width = pct + '%';
+  document.getElementById('cl-count').textContent = checked + ' / 8';
+  const status = document.getElementById('cl-status');
+  if (checked === 8) { status.textContent = '✅ همه موارد تأیید شد — میتونی وارد بشی!'; status.className = 'status-msg ready'; }
+  else if (checked >= 5) { status.textContent = '⚠️ کمی مونده — عجله نکن'; status.className = 'status-msg partial'; }
+  else { status.textContent = '⏳ ' + checked + ' از 8 مورد تأیید شده'; status.className = 'status-msg'; }
+}
+
+function resetChecklist() {
+  clState = new Array(8).fill(false);
+  localStorage.setItem('kian_checklist', JSON.stringify(clState));
+  renderChecklist();
+}
+
+// Init
+document.getElementById('f-date').value = new Date().toISOString().split('T')[0];
+renderJournal();
+renderChecklist();
+</script>
+</body>
+</html>
